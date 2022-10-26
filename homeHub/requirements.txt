@@ -1,0 +1,3 @@
+paho-mqtt==1.6.1
+wiringpi==2.60.1
+python-dotenv==0.21.0

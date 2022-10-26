@@ -1,0 +1,18 @@
+{
+    "apps": [
+        {
+            "name": "MySQL-ACL",
+            "cwd": "/pm2-apps/nodeBackend",
+            "script": "index.js",
+            "watch": true
+        },
+        {
+            "name": "HomeHub",
+            "cwd": "/pm2-apps/homeHub",
+            "script": "homeHub.py",
+            "interpreter": "/usr/bin/python3",
+            "watch": true,
+            "ignore_watch": ["venv"]
+        }
+    ]
+}
