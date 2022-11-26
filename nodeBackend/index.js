@@ -3,20 +3,19 @@ var mqtt = require('mqtt');
 
 // MySql credentials
 var conn = mysql.createConnection({
-  prot: process.env.MYSQL_PORT,
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DB
+	host: 'localhost',
+  user: 'admin_cosmos-iot',
+  password: 'peru1843',
+  database:'admin_devices_management'
 });
 
 // Mqtt credentials
 var options = {
-  port: process.env.EMQX_PORT,
-  host: process.env.EMQX_HOST,
+  port: 1883,
+  host: 'localhost',
   clientId: 'cosmosiot_node_' + Math.round(Math.random() * (0 - 10000) * -1),
-  username: process.env.EMQX_USER,
-  password: process.env.EMQX_PASSWORD,
+  username: 'backend_client',
+  password: '94KJt7J*:hRzru:5',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
@@ -25,7 +24,7 @@ var options = {
   encoding: 'utf8'
 };
 
-const WebSocket_URL = 'mqtt://' + process.env.EMQX_HOST
+const WebSocket_URL = 'mqtt://localhost'
 const client = mqtt.connect(WebSocket_URL, options);
 
 // Gobal Variables
@@ -88,6 +87,8 @@ client.on('message', (topic, message) =>{
           newTopic = "/Sensors";
         else if (type == "CAM")
           newTopic = "/Cameras";
+        else if (type == "MOT")
+          newTopic = "/Motors";
 
         if (lvl != 0)
         {
@@ -172,6 +173,8 @@ client.on('message', (topic, message) =>{
             newTopic = "/Sensors";
           else if (type == "CAM")
             newTopic = "/Cameras";
+          else if (type == "MOT")
+            newTopic = "/Motors";
 
           if (lvl[i] != 0)
           {
