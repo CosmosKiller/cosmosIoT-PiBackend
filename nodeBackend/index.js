@@ -43,11 +43,10 @@ client.on('connect', function () {
 
 // Mqtt message callback function
 client.on('message', (topic, message) =>{
-  console.log('Recibido desde ->', topic, '; Mensaje ->', message.toString());
-
   var splitted_topic = topic.split("/");
   var serial_number = splitted_topic[0];
   var query = splitted_topic[1];
+  var subTopic = splitted_topic[2];
   var msg = message.toString();
 
   if (query == "tx_controll") // Transmit msg to a device
@@ -92,33 +91,43 @@ client.on('message', (topic, message) =>{
 
         if (lvl != 0)
         {
-          /*
-          Only users with correct permission are
-          allowed to access the device, ie, to publish in the
-          specified topic.
-          */
-          client.publish(serial_number + newTopic, command);
-          
-          /*
-          This function works a a flag checker;
-          If the serial number of the device we are trying to reach 
-          isn´t stored in devState, that means we never recived an answer from 
-          that device, so we asume it's disconected from the broker.
-          This functions works with the condition set in line 184
-          */
-          setTimeout(function(){
-            if (devState[serial_number] === undefined)
-            {
-              client.publish(serial_number + "/Coms", user_id + ",Undefined");
-              client.publish(serial_number + "/Status/online", "2", {qos: 0, retain: true});
-            }
-            else
-            {
-              client.publish(serial_number + "/Coms", user_id + ",Granted");
-              if (type == "LSC" && command != "000/000/000/000/")
-                client.publish(serial_number + "/Status/rgbState", command, {qos: 0, retain: true});
-            }
-          }, 150);
+          if (subTopic == "dev_action")
+          {
+            /*
+            Only users with correct permission are
+            allowed to access the device, ie, to publish in the
+            specified topic.
+            */
+            client.publish(serial_number + newTopic, command);
+            
+            /*
+            This function works a a flag checker;
+            If the serial number of the device we are trying to reach 
+            isn´t stored in devState, that means we never recived an answer from 
+            that device, so we asume it's disconected from the broker.
+            This functions works with the condition set in line 184
+            */
+            setTimeout(function(){
+              if (devState[serial_number] === undefined)
+              {
+                client.publish(serial_number + "/Coms", user_id + ",Undefined");
+                client.publish(serial_number + "/Status/online", "2", {qos: 0, retain: true});
+              }
+              else
+              {
+                client.publish(serial_number + "/Coms", user_id + ",Granted");
+                if (type == "LSC" && command != "000/000/000/000/")
+                  client.publish(serial_number + "/Status/rgbState", command, {qos: 0, retain: true});
+              }
+            }, 150);
+          }
+          else if (subTopic == "db_query")
+          {
+            var owner = result[0]['owners_id'];
+            var query3 = "UPDATE `admin_devices_management`.`owners` SET `owners_devAlias`='" + command + "' WHERE  `owners_id`='" + owner + "'";
+
+            conn.query(query3);
+          }
         }
         else
         {
@@ -178,7 +187,7 @@ client.on('message', (topic, message) =>{
 
           if (lvl[i] != 0)
           {
-            // WWe'll only publish the message for enabled users
+            // We'll only publish the message for enabled users
             client.publish(serial_number + newTopic + subtype, usr[i] + "," + msg);
           }
         }  
